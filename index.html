@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>律動星舞蹈教室｜釋放你的節奏靈魂</title>
+  <!-- 引入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入 Google Fonts: Noto Sans TC & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans TC"', 'Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            starry: {
+              dark: '#0f172a',
+              slate: '#1e293b',
+              coral: '#ff6b6b',
+              gold: '#ffd166',
+              electric: '#3b82f6',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'spin-slow': 'spin 20s linear infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-12px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 自訂深邃星空背景與微粒光暈 */
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    /* 星空背景畫布層 */
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* 毛玻璃特效 */
+    .glass-nav {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255, 209, 102, 0.4);
+      box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.15);
+    }
+
+    /* Dialogflow Messenger 自訂主題樣式與層級設定 */
+    df-messenger {
+      z-index: 9999;
+      position: fixed;
+      --df-messenger-bot-message: #1e293b;
+      --df-messenger-button-titlebar-color: #ff6b6b;
+      --df-messenger-chat-background-color: #0f172a;
+      --df-messenger-font-color: #f8fafc;
+      --df-messenger-send-icon: #ffd166;
+      --df-messenger-user-message: #3b82f6;
+      --df-messenger-input-box-color: #1e293b;
+      --df-messenger-input-font-color: #ffffff;
+      --df-messenger-input-placeholder-font-color: #94a3b8;
+    }
+
+    /* 提示訊息 Toast 動畫 */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    .toast-enter {
+      animation: slideUp 0.35s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-starry-coral selection:text-white">
+
+  <!-- 動態星空粒子畫布 -->
+  <canvas id="starfield"></canvas>
+
+  <!-- 背景環境光暈裝飾 -->
+  <div class="fixed top-[-10%] left-[-10%] w-[45vw] h-[45vw] rounded-full bg-starry-electric/15 blur-[120px] pointer-events-none z-0"></div>
+  <div class="fixed bottom-[10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-starry-coral/15 blur-[120px] pointer-events-none z-0"></div>
+
+  <!-- 頂部半透明毛玻璃導覽列 -->
+  <header class="fixed top-0 left-0 right-0 z-50 glass-nav">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        <!-- 品牌 Logo -->
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-starry-coral to-starry-gold flex items-center justify-center shadow-lg shadow-starry-coral/30 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6 text-slate-950" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+            </svg>
+          </div>
+          <div>
+            <span class="text-lg sm:text-xl font-extrabold tracking-wide bg-gradient-to-r from-white via-starry-gold to-starry-coral bg-clip-text text-transparent">
+              律動星舞蹈教室
+            </span>
+            <span class="hidden sm:block text-[10px] text-slate-400 tracking-widest uppercase">Rhythm Star Dance Studio</span>
+          </div>
+        </a>
+
+        <!-- 桌面版導覽連結 -->
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+          <a href="#story" class="hover:text-starry-gold transition-colors">品牌故事</a>
+          <a href="#classes" class="hover:text-starry-gold transition-colors">熱門課程</a>
+          <a href="#instructors" class="hover:text-starry-gold transition-colors">師資陣容</a>
+          <a href="#studio" class="hover:text-starry-gold transition-colors">教室與評價</a>
+          <button onclick="promptChat('我想預約免費體驗課程！')" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-starry-coral to-rose-500 text-white font-semibold shadow-lg shadow-starry-coral/30 hover:shadow-starry-coral/50 hover:scale-105 transition-all cursor-pointer">
+            預約體驗
+          </button>
+        </nav>
+
+        <!-- 手機版漢堡選單按鈕 -->
+        <div class="md:hidden flex items-center">
+          <button id="mobile-menu-btn" aria-label="開啟選單" class="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 手機版下拉選單 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-slate-900/95 border-b border-slate-800 px-4 pt-2 pb-6 space-y-3">
+      <a href="#story" class="mobile-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800 hover:text-starry-gold">品牌故事</a>
+      <a href="#classes" class="mobile-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800 hover:text-starry-gold">熱門課程</a>
+      <a href="#instructors" class="mobile-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800 hover:text-starry-gold">師資陣容</a>
+      <a href="#studio" class="mobile-link block px-3 py-2.5 rounded-lg text-base font-medium text-slate-200 hover:bg-slate-800 hover:text-starry-gold">教室與評價</a>
+      <div class="pt-2">
+        <button onclick="promptChat('我想預約免費體驗課程！')" class="w-full py-3 rounded-xl bg-gradient-to-r from-starry-coral to-rose-500 text-white font-bold shadow-lg">
+          立即預約體驗
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要內容區塊 -->
+  <main class="relative z-10">
+
+    <!-- 1. 首頁主視覺 (Hero Section) -->
+    <section class="relative min-h-screen flex items-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- 左側文案與 CTA -->
+        <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/80 border border-starry-gold/30 text-starry-gold text-xs sm:text-sm font-medium shadow-inner">
+            <span class="w-2 h-2 rounded-full bg-starry-gold animate-ping"></span>
+            新竹新豐最溫暖活力的舞蹈空間
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15]">
+            律動星舞蹈教室
+            <span class="block mt-2 bg-gradient-to-r from-starry-gold via-starry-coral to-starry-electric bg-clip-text text-transparent">
+              釋放你的節奏靈魂
+            </span>
+          </h1>
+
+          <p class="text-base sm:text-lg lg:text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            Hey! 準備好跟著節奏一起舞動了嘛！無論是零基礎新手還是進階舞者，在這裡都能找到屬於你的舞台。
+          </p>
+
+          <!-- 按鈕群 -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+            <button onclick="promptChat('你好！我想預約免費體驗課程，請問有哪些時段？')" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-starry-coral via-rose-500 to-orange-500 text-white font-bold text-base sm:text-lg shadow-xl shadow-starry-coral/30 hover:shadow-starry-coral/50 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <span>立即免費體驗</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </button>
+
+            <button onclick="openChatHelper()" class="w-full sm:w-auto px-8 py-4 rounded-2xl glass-card text-white font-semibold text-base sm:text-lg hover:bg-slate-800/80 border border-starry-electric/40 hover:border-starry-electric transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <span class="text-xl">💬</span>
+              <span>詢問線上小幫手</span>
+            </button>
+          </div>
+
+          <!-- 數據亮點 -->
+          <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800/80 max-w-lg mx-auto lg:mx-0">
+            <div>
+              <div class="text-2xl sm:text-3xl font-extrabold text-starry-gold">100%</div>
+              <div class="text-xs sm:text-sm text-slate-400">零基礎友善</div>
+            </div>
+            <div>
+              <div class="text-2xl sm:text-3xl font-extrabold text-starry-coral">12人</div>
+              <div class="text-xs sm:text-sm text-slate-400">小班精緻上限</div>
+            </div>
+            <div>
+              <div class="text-2xl sm:text-3xl font-extrabold text-starry-electric">4.9★</div>
+              <div class="text-xs sm:text-sm text-slate-400">學員口碑推薦</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側幾何律動與舞者剪影視覺插畫 -->
+        <div class="lg:col-span-5 relative flex items-center justify-center">
+          <div class="relative w-full max-w-md aspect-square flex items-center justify-center animate-float">
+            <!-- 旋轉幾何光環 -->
+            <div class="absolute inset-4 rounded-full border-2 border-dashed border-starry-gold/30 animate-spin-slow"></div>
+            <div class="absolute inset-10 rounded-full border border-starry-electric/40"></div>
+            <div class="absolute inset-0 bg-gradient-to-tr from-starry-electric/20 via-starry-coral/20 to-starry-gold/20 rounded-full blur-2xl"></div>
+
+            <!-- 律動舞者 SVG 藝術插畫 -->
+            <svg class="relative z-10 w-4/5 h-4/5 drop-shadow-[0_0_25px_rgba(255,107,107,0.45)]" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="dancerGrad" x1="60" y1="40" x2="340" y2="360" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#ffd166"/>
+                  <stop offset="50%" stop-color="#ff6b6b"/>
+                  <stop offset="100%" stop-color="#3b82f6"/>
+                </linearGradient>
+                <linearGradient id="waveGrad" x1="0" y1="200" x2="400" y2="200" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0"/>
+                  <stop offset="50%" stop-color="#ffd166" stop-opacity="0.8"/>
+                  <stop offset="100%" stop-color="#ff6b6b" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+
+              <!-- 聲波律動軌跡 -->
+              <path d="M20 220 C 90 120, 150 310, 220 190 C 280 90, 330 260, 380 170" stroke="url(#waveGrad)" stroke-width="4" stroke-linecap="round"/>
+              <path d="M30 250 C 110 160, 170 330, 240 210 C 300 120, 340 280, 375 200" stroke="url(#dancerGrad)" stroke-width="2" stroke-dasharray="6 6" opacity="0.7"/>
+
+              <!-- 動感舞者抽象剪影 -->
+              <circle cx="215" cy="92" r="22" fill="url(#dancerGrad)"/>
+              <path d="M205 122 C 185 135, 145 110, 115 88 C 108 83, 100 92, 107 99 C 138 128, 175 152, 195 155 L 182 215 L 132 285 C 126 293, 136 303, 144 295 L 198 235 L 235 280 L 245 342 C 247 352, 261 350, 260 340 L 252 268 L 222 215 L 235 162 C 262 168, 295 152, 318 126 C 325 118, 315 109, 308 116 C 286 138, 258 148, 232 140 Z" fill="url(#dancerGrad)"/>
+
+              <!-- 閃耀星星裝飾 -->
+              <path d="M95 155 L99 165 L109 169 L99 173 L95 183 L91 173 L81 169 L91 165 Z" fill="#ffd166"/>
+              <path d="M310 235 L315 248 L328 253 L315 258 L310 271 L305 258 L292 253 L305 248 Z" fill="#ff6b6b"/>
+              <circle cx="145" cy="70" r="4" fill="#3b82f6"/>
+              <circle cx="290" cy="85" r="5" fill="#ffd166"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. 品牌故事區塊 (Our Story) -->
+    <section id="story" class="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <span class="text-starry-coral font-bold tracking-wider uppercase text-sm">OUR STORY</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            讓每一個人，都能像星星一樣在音樂中閃耀
+          </h2>
+          <div class="w-20 h-1.5 bg-gradient-to-r from-starry-gold to-starry-coral mx-auto rounded-full"></div>
+        </div>
+
+        <!-- 故事敘述卡片 -->
+        <div class="glass-card rounded-3xl p-8 sm:p-12 mb-12 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-starry-gold/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-7 space-y-5 text-slate-300 leading-relaxed text-base sm:text-lg">
+              <p>
+                「律動星舞蹈教室」誕生於一個簡單卻炙熱的夢想——由一群熱愛街舞與現代舞的舞者共同創立。我們深知許多人心中都藏著一個跳舞夢，卻常因為「怕跟不上」、「肢體不協調」或「教室氣氛太嚴肅」而卻步。
+              </p>
+              <p>
+                因此，我們決定打造一個<span class="text-starry-gold font-semibold">「沒有壓力、只有純粹快樂與汗水」</span>的友善空間。在這裡，沒有人會嘲笑你的同手同腳，老師會陪著你從第一個八拍開始拆解；當音樂響起、燈光亮起，你只需要享受節奏，找回身體最真實的自由。
+              </p>
+            </div>
+            <div class="lg:col-span-5">
+              <div class="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-6 border border-starry-gold/20 shadow-inner space-y-4">
+                <div class="text-starry-gold text-3xl">❝</div>
+                <p class="text-white font-medium italic leading-relaxed">
+                  舞蹈不是為了證明自己有多厲害，而是為了在忙碌的生活裡，留一段只屬於自己與音樂的快樂時光。
+                </p>
+                <div class="flex items-center gap-3 pt-2">
+                  <div class="w-10 h-10 rounded-full bg-starry-coral/20 border border-starry-coral flex items-center justify-center text-starry-coral font-bold">星</div>
+                  <div>
+                    <div class="text-sm font-bold text-white">律動星創辦團隊</div>
+                    <div class="text-xs text-slate-400">Rhythm Star Founders</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 三大核心理念卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <!-- 理念 1 -->
+          <div class="glass-card rounded-2xl p-7 text-center sm:text-left space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-starry-coral/15 border border-starry-coral/30 flex items-center justify-center text-2xl mx-auto sm:mx-0">
+              🌱
+            </div>
+            <h3 class="text-xl font-bold text-white">零壓力友善環境</h3>
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+              專為零基礎與休閒舞者設計的循序漸進教學，課堂氣氛輕鬆歡樂，讓你放下緊張、自在揮灑汗水。
+            </p>
+          </div>
+
+          <!-- 理念 2 -->
+          <div class="glass-card rounded-2xl p-7 text-center sm:text-left space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-starry-gold/15 border border-starry-gold/30 flex items-center justify-center text-2xl mx-auto sm:mx-0">
+              ✨
+            </div>
+            <h3 class="text-xl font-bold text-white">小班制精緻教學</h3>
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+              每班嚴格控管人數上限，確保老師能照顧到每一位學員的動作細節與節奏掌握，學習更有成就感。
+            </p>
+          </div>
+
+          <!-- 理念 3 -->
+          <div class="glass-card rounded-2xl p-7 text-center sm:text-left space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-starry-electric/15 border border-starry-electric/30 flex items-center justify-center text-2xl mx-auto sm:mx-0">
+              🎵
+            </div>
+            <h3 class="text-xl font-bold text-white">多元舞風自由探索</h3>
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+              從時下最夯的 K-POP MV 舞蹈到帥氣街舞、魅力爵士與現代抒情，彈性堂數制度讓你隨心嘗試不同風格。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 熱門課程介紹 (Featured Classes) -->
+    <section id="classes" class="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-slate-950/40">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <span class="text-starry-gold font-bold tracking-wider uppercase text-sm">FEATURED CLASSES</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            探索你的專屬節奏・熱門常態課程
+          </h2>
+          <p class="text-slate-400 text-sm sm:text-base">
+            點擊任一課程的「諮詢此課程」，即可快速複製詢問內容並透過右下角小幫手完成報名或體驗預約！
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          
+          <!-- 課程 1: K-POP 流行舞 -->
+          <div class="glass-card rounded-3xl p-6 flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-starry-coral/20 text-starry-coral border border-starry-coral/30">
+                  基礎入門
+                </span>
+                <span class="text-2xl">🎤</span>
+              </div>
+              <h3 class="text-xl font-extrabold text-white group-hover:text-starry-gold transition-colors">
+                K-POP 流行舞
+              </h3>
+              <div class="flex items-center gap-2 text-xs sm:text-sm text-starry-gold font-medium bg-slate-900/60 px-3 py-2 rounded-xl">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>週二、週四 19:00 - 20:30</span>
+              </div>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                精選最新韓國流行主打歌，從基礎律動與表情管理教起，手把手拆解偶像經典編舞，零基礎也能輕鬆跳出 MV 帥氣感！
+              </p>
+            </div>
+            <div class="pt-6 mt-6 border-t border-slate-700/50">
+              <button onclick="inquireCourse('K-POP 流行舞（週二、四 19:00）')" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-starry-coral text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                <span>諮詢此課程</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 課程 2: Hip-Hop 街舞律動 -->
+          <div class="glass-card rounded-3xl p-6 flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-starry-electric/20 text-starry-electric border border-starry-electric/30">
+                  全程度適合
+                </span>
+                <span class="text-2xl">🎧</span>
+              </div>
+              <h3 class="text-xl font-extrabold text-white group-hover:text-starry-gold transition-colors">
+                Hip-Hop 街舞律動
+              </h3>
+              <div class="flex items-center gap-2 text-xs sm:text-sm text-starry-gold font-medium bg-slate-900/60 px-3 py-2 rounded-xl">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>週三、週五 20:00 - 21:30</span>
+              </div>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                著重身體律動感（Groove）、核心控制與音樂節拍切換，訓練身體協調性與爆發力，讓你隨便擺動都充滿街頭態度。
+              </p>
+            </div>
+            <div class="pt-6 mt-6 border-t border-slate-700/50">
+              <button onclick="inquireCourse('Hip-Hop 街舞律動（週三、五 20:00）')" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-starry-electric text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                <span>諮詢此課程</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 課程 3: Jazz Funk 魅力爵士 -->
+          <div class="glass-card rounded-3xl p-6 flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-starry-gold/20 text-starry-gold border border-starry-gold/30">
+                  初中階推薦
+                </span>
+                <span class="text-2xl">💃</span>
+              </div>
+              <h3 class="text-xl font-extrabold text-white group-hover:text-starry-gold transition-colors">
+                Jazz Funk 魅力爵士
+              </h3>
+              <div class="flex items-center gap-2 text-xs sm:text-sm text-starry-gold font-medium bg-slate-900/60 px-3 py-2 rounded-xl">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>週六 14:00 - 15:30</span>
+              </div>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                結合街舞力量與爵士柔美線條，強化肢體延伸與舞台張力，幫助你雕塑體態並展現迷人自信魅力。
+              </p>
+            </div>
+            <div class="pt-6 mt-6 border-t border-slate-700/50">
+              <button onclick="inquireCourse('Jazz Funk 魅力爵士（週六 14:00）')" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                <span>諮詢此課程</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 課程 4: Contemporary 現代抒情 -->
+          <div class="glass-card rounded-3xl p-6 flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-400/30">
+                  全程度適合
+                </span>
+                <span class="text-2xl">🌙</span>
+              </div>
+              <h3 class="text-xl font-extrabold text-white group-hover:text-starry-gold transition-colors">
+                Contemporary 現代抒情
+              </h3>
+              <div class="flex items-center gap-2 text-xs sm:text-sm text-starry-gold font-medium bg-slate-900/60 px-3 py-2 rounded-xl">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>週日 16:00 - 17:30</span>
+              </div>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                透過呼吸與地板流動練習，釋放日常累積的緊繃壓力，將情感融入優美的肢體語言中，享受身心療癒的週日午後。
+              </p>
+            </div>
+            <div class="pt-6 mt-6 border-t border-slate-700/50">
+              <button onclick="inquireCourse('Contemporary 現代抒情（週日 16:00）')" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-purple-500 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                <span>諮詢此課程</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 師資陣容 (Instructors) -->
+    <section id="instructors" class="py-20 sm:py-24 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <span class="text-starry-electric font-bold tracking-wider uppercase text-sm">OUR INSTRUCTORS</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            熱情專業的引路星師資團隊
+          </h2>
+          <p class="text-slate-400 text-sm sm:text-base">
+            每一位老師不僅擁有豐富舞台演出與教學資歷，更擅長用鼓勵與幽默化解新手緊張。
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- 老師 1 -->
+          <div class="glass-card rounded-3xl p-6 text-center space-y-4">
+            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-starry-coral to-starry-gold p-1">
+              <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl">🌟</div>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white">Mina 老師</h3>
+              <p class="text-xs font-semibold text-starry-coral mt-1">K-POP / MV 專攻・8年教學資歷</p>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              擅長將複雜的偶像舞步拆解為簡單好記的口訣，上課氣氛超嗨，讓你在歡笑中不知不覺學會整首副歌！
+            </p>
+          </div>
+
+          <!-- 老師 2 -->
+          <div class="glass-card rounded-3xl p-6 text-center space-y-4">
+            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-starry-electric to-cyan-400 p-1">
+              <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl">🔥</div>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white">Leo 老師</h3>
+              <p class="text-xs font-semibold text-starry-electric mt-1">Hip-Hop / Freestyle・各大街舞賽冠軍</p>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              重視基礎律動與身體開發，細心調整每位學員的重心與發力方式，幫你建立紮實又帥氣的街舞底子。
+            </p>
+          </div>
+
+          <!-- 老師 3 -->
+          <div class="glass-card rounded-3xl p-6 text-center space-y-4 sm:col-span-2 lg:col-span-1">
+            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-purple-400 to-starry-coral p-1">
+              <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl">💫</div>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white">Chloe 老師</h3>
+              <p class="text-xs font-semibold text-starry-gold mt-1">Jazz Funk / Contemporary・科班出身</p>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              融合現代舞的柔美流暢與爵士的自信張力，引導學員感受音樂情緒，跳出專屬於自己的獨特線條。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 教室環境與學員心得 (Studio & Reviews) -->
+    <section id="studio" class="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-slate-950/40">
+      <div class="max-w-7xl mx-auto space-y-20">
+        
+        <!-- 教室硬體特色 -->
+        <div>
+          <div class="text-center max-w-3xl mx-auto mb-14 space-y-4">
+            <span class="text-starry-coral font-bold tracking-wider uppercase text-sm">OUR STUDIO</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+              高規格星級教室空間
+            </h2>
+            <p class="text-slate-400 text-sm sm:text-base">
+              舒適安全的練舞環境，讓每一次跳躍與旋轉都安心自在。
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-starry-gold/15 text-starry-gold text-2xl shrink-0">🪵</div>
+              <div>
+                <h3 class="font-bold text-lg text-white mb-1">專業防滑減震木地板</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">採用舞蹈教室專用彈性木地板，有效吸收跳躍衝擊力，保護膝蓋與腳踝關節。</p>
+              </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-starry-electric/15 text-starry-electric text-2xl shrink-0">🔊</div>
+              <div>
+                <h3 class="font-bold text-lg text-white mb-1">劇院級環繞立體音響</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">重低音飽滿清晰，精準呈現每一個鼓點節拍，搭配可調式星空氛圍燈光。</p>
+              </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-starry-coral/15 text-starry-coral text-2xl shrink-0">🪞</div>
+              <div>
+                <h3 class="font-bold text-lg text-white mb-1">無死角大片高清落地鏡</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">整面無接縫明亮落地鏡與獨立更衣休息區、飲水機，提供清爽無塵的練舞體驗。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 學員真實好評 -->
+        <div>
+          <div class="text-center max-w-3xl mx-auto mb-12 space-y-3">
+            <span class="text-starry-gold font-bold tracking-wider uppercase text-sm">STUDENT REVIEWS</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">聽聽星友們怎麼說</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <!-- 評價 1 -->
+            <div class="glass-card rounded-2xl p-6 space-y-4 flex flex-col justify-between">
+              <div class="space-y-3">
+                <div class="text-starry-gold text-sm tracking-widest">★★★★★</div>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                  「以前完全沒有學過舞，一直以為自己肢體不協調，但 Mina 老師真的很有耐心！上完第一堂 K-POP 體驗課就愛上這裡的氣氛，下班後流流汗超紓壓！」
+                </p>
+              </div>
+              <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div class="w-9 h-9 rounded-full bg-starry-coral/30 flex items-center justify-center text-sm font-bold text-starry-coral">怡</div>
+                <div>
+                  <div class="text-sm font-bold text-white">陳怡君・竹科工程師</div>
+                  <div class="text-xs text-slate-400">學習 K-POP 課程 4 個月</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 評價 2 -->
+            <div class="glass-card rounded-2xl p-6 space-y-4 flex flex-col justify-between">
+              <div class="space-y-3">
+                <div class="text-starry-gold text-sm tracking-widest">★★★★★</div>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                  「教室環境非常乾淨明亮，木地板踩起來很舒服！小班制讓老師真的會走到旁邊幫你調動作細節，不會有被放生的感覺，大推！」
+                </p>
+              </div>
+              <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div class="w-9 h-9 rounded-full bg-starry-electric/30 flex items-center justify-center text-sm font-bold text-starry-electric">宇</div>
+                <div>
+                  <div class="text-sm font-bold text-white">林宇軒・大學生</div>
+                  <div class="text-xs text-slate-400">學習 Hip-Hop 課程 6 個月</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 評價 3 -->
+            <div class="glass-card rounded-2xl p-6 space-y-4 flex flex-col justify-between">
+              <div class="space-y-3">
+                <div class="text-starry-gold text-sm tracking-widest">★★★★★</div>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                  「週日下午的現代抒情課是我每週最期待的充電時間！Chloe 老師的編舞很有故事感，教室氣氛溫馨，認識了好多一起愛跳舞的好朋友。」
+                </p>
+              </div>
+              <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
+                <div class="w-9 h-9 rounded-full bg-starry-gold/30 flex items-center justify-center text-sm font-bold text-starry-gold">雅</div>
+                <div>
+                  <div class="text-sm font-bold text-white">張雅婷・設計師</div>
+                  <div class="text-xs text-slate-400">學習 Contemporary 課程 1 年</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 6. 頁尾 (Footer) -->
+  <footer class="relative z-10 bg-slate-950 border-t border-slate-800/80 pt-16 pb-24 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      
+      <!-- 品牌資訊 -->
+      <div class="space-y-4 lg:col-span-2">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-starry-coral to-starry-gold flex items-center justify-center text-slate-950 font-black">★</div>
+          <span class="text-xl font-extrabold text-white">律動星舞蹈教室</span>
+        </div>
+        <p class="text-slate-400 text-sm leading-relaxed max-w-md">
+          用節奏點亮生活，用汗水紀錄快樂。無論你是第一次踏進舞蹈教室，還是尋找志同道合的舞伴，律動星永遠為你留一盞燈。
+        </p>
+      </div>
+
+      <!-- 聯絡與地址 -->
+      <div class="space-y-3 text-sm">
+        <h4 class="text-white font-bold text-base mb-2">教室資訊</h4>
+        <p class="text-slate-400 flex items-start gap-2">
+          <span class="text-starry-coral">📍</span>
+          <span>新竹縣新豐鄉星光大道 88 號 3 樓</span>
+        </p>
+        <p class="text-slate-400 flex items-center gap-2">
+          <span class="text-starry-gold">🕒</span>
+          <span>週二至週五 14:00 - 22:00<br>週六至週日 10:00 - 20:00（週一公休）</span>
+        </p>
+        <p class="text-slate-400 flex items-center gap-2">
+          <span class="text-starry-electric">📞</span>
+          <span>(03) 559-8888</span>
+        </p>
+      </div>
+
+      <!-- 快速操作 -->
+      <div class="space-y-3 text-sm">
+        <h4 class="text-white font-bold text-base mb-2">線上服務</h4>
+        <ul class="space-y-2 text-slate-400">
+          <li><a href="#story" class="hover:text-starry-gold transition-colors">關於律動星</a></li>
+          <li><a href="#classes" class="hover:text-starry-gold transition-colors">常態課程表</a></li>
+          <li><a href="#instructors" class="hover:text-starry-gold transition-colors">師資陣容</a></li>
+          <li>
+            <button onclick="openChatHelper()" class="text-starry-coral hover:underline font-medium cursor-pointer">
+              開啟右下角線上小幫手 →
+            </button>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-900 text-center text-xs text-slate-500">
+      © 2026 律動星舞蹈教室 Rhythm Star Dance Studio. All Rights Reserved.
+    </div>
+  </footer>
+
+  <!-- 底部浮動提示通知區 (取代 alert) -->
+  <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[9998] pointer-events-none w-[90%] max-w-md"></div>
+
+  <!-- Dialogflow Messenger 聊天機器人 -->
+  <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+  <df-messenger
+    intent="WELCOME"
+    chat-title="律動星舞蹈教室"
+    agent-id="e54af6bd-4723-410f-860d-1d7677e8afed"
+    language-code="zh-tw"
+  ></df-messenger>
+
+  <!-- 互動與動態星空背景腳本 -->
+  <script>
+    // 1. 動態閃爍星空粒子背景
+    (function initStarfield() {
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      const numStars = 110;
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      function createStars() {
+        stars = [];
+        const colors = ['#ffffff', '#ffd166', '#93c5fd', '#fda4af'];
+        for (let i = 0; i < numStars; i++) {
+          stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 1.8 + 0.4,
+            alpha: Math.random(),
+            delta: (Math.random() * 0.015 + 0.005) * (Math.random() < 0.5 ? 1 : -1),
+            speedY: Math.random() * 0.15 + 0.05,
+            color: colors[Math.floor(Math.random() * colors.length)]
+          });
+        }
+      }
+
+      function animateStars() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const star of stars) {
+          star.alpha += star.delta;
+          if (star.alpha <= 0.1 || star.alpha >= 1) {
+            star.delta = -star.delta;
+          }
+          star.y -= star.speedY;
+          if (star.y < 0) {
+            star.y = canvas.height;
+            star.x = Math.random() * canvas.width;
+          }
+
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = star.color;
+          ctx.globalAlpha = Math.max(0.1, Math.min(1, star.alpha));
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(animateStars);
+      }
+
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        createStars();
+      });
+
+      resizeCanvas();
+      createStars();
+      animateStars();
+    })();
+
+    // 2. 手機版漢堡選單切換
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileLinks = document.querySelectorAll('.mobile-link');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      });
+    });
+
+    // 3. 顯示自訂質感 Toast 提示框 (不使用 alert)
+    function showToast(title, message) {
+      const container = document.getElementById('toast-container');
+      container.innerHTML = `
+        <div class="toast-enter pointer-events-auto bg-slate-900/95 border border-starry-gold/50 text-white px-5 py-4 rounded-2xl shadow-2xl backdrop-blur-md flex items-start gap-3">
+          <div class="text-2xl shrink-0">✨</div>
+          <div class="text-sm">
+            <div class="font-bold text-starry-gold mb-0.5">${title}</div>
+            <div class="text-slate-300 leading-snug">${message}</div>
+          </div>
+        </div>
+      `;
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        container.innerHTML = '';
+      }, 5500);
+    }
+
+    // 4. 複製文字到剪貼簿 (相容 iFrame 環境)
+    function copyTextFallback(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('複製失敗', err);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    // 5. 嘗試自動展開 Dialogflow 視窗並顯示引導提示
+    function tryExpandMessenger() {
+      const dfMessenger = document.querySelector('df-messenger');
+      if (dfMessenger) {
+        // 嘗試開啟聊天視窗屬性
+        dfMessenger.setAttribute('expand', 'true');
+      }
+    }
+
+    function openChatHelper() {
+      tryExpandMessenger();
+      showToast(
+        '線上小幫手已準備就緒！',
+        '請點選畫面右下角的「律動星舞蹈教室」聊天圖示，即可直接詢問課程與預約體驗喔！'
+      );
+    }
+
+    function promptChat(questionText) {
+      copyTextFallback(questionText);
+      tryExpandMessenger();
+      showToast(
+        '已為您複製詢問內容！',
+        `「${questionText}」— 請點擊右下角聊天圖示並貼上發送給小幫手！`
+      );
+    }
+
+    function inquireCourse(courseName) {
+      const question = `你好！我想諮詢「${courseName}」的詳細內容與體驗報名方式。`;
+      copyTextFallback(question);
+      tryExpandMessenger();
+      showToast(
+        '已複製課程諮詢訊息！',
+        `已複製：「${question}」，請點選右下角聊天圖示貼上發送！`
+      );
+    }
+  </script>
+</body>
+</html>
